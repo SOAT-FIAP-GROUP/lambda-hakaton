@@ -63,14 +63,8 @@ jobs:
         if: ${{ inputs.destroy != 'true' }}
         id: get_lb
         run: |
-          LB_DNS_PRODUTO=$(kubectl get svc produto-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
-          LB_DNS_PEDIDO=$(kubectl get svc pedido-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
-          LB_DNS_PAGAMENTO=$(kubectl get svc pagamento-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
-          LB_DNS_PRODUCAO=$(kubectl get svc producao-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
-          echo "LB_DNS_PRODUTO=$LB_DNS_PRODUTO" >> $GITHUB_ENV
-          echo "LB_DNS_PEDIDO=$LB_DNS_PEDIDO" >> $GITHUB_ENV
-          echo "LB_DNS_PAGAMENTO=$LB_DNS_PAGAMENTO" >> $GITHUB_ENV
-          echo "LB_DNS_PRODUCAO=$LB_DNS_PRODUCAO" >> $GITHUB_ENV
+          LB_DNS_API=$(kubectl get svc video-processor-api-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+          echo "LB_DNS_API=$LB_DNS_API" >> $GITHUB_ENV
 
       - name: Terraform Init
         run: |
@@ -88,7 +82,7 @@ jobs:
         run: |
           terraform workspace select ${{ inputs.environment }} || terraform workspace new ${{ inputs.environment }}
           terraform destroy -auto-approve \
-            -var='services={}'
+            -var='services=""'
 
       - name: Terraform Plan
         if: ${{ inputs.destroy != 'true' }}
@@ -97,10 +91,7 @@ jobs:
           terraform plan \
             -out="${{ inputs.environment }}.plan" \
             -var='services={
-              envio = "${{ env.LB_DNS_ENVIO }}"
-              processamento  = "${{ env.LB_DNS_PROCESSAMENTO }}"
-              notificacao    = "${{ env.LB_DNS_NOTIFICACAO }}"
-              processos    = "${{ env.LB_DNS_PROCESSOS }}"
+              api = "${{ env.LB_DNS_API }}"
             }'
 
       - name: Terraform Apply
