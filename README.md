@@ -6,3 +6,5 @@ Gere os arquivos .zip que conterá as lambdas antes de executar as aplicações 
 # Compacte as lambdas
 
 Através do scripts `package.sh` que gerará os arquivos ZIP.
+
+Versão depreciada
